@@ -84,6 +84,7 @@ def timeSeriesDR(index): #get timeSeries for specific DR graph
     plt.ylabel('Crude Death Rate (per 1000 people)')
     plot_finalize()
 
+
 def timeSeriesDRregions(): #get timeSeries for regions DR graph
     df, dfDR = scrape()
     time = getDates(dfDR)
@@ -97,6 +98,7 @@ def timeSeriesDRregions(): #get timeSeries for regions DR graph
         plt.title(title)
         plt.ylabel('Crude Death Rate (per 1000 people)')
         plot_finalize()
+
 
 def plot_finalize(): #finalize plot and show plot
     plt.margins(x=0)
@@ -142,12 +144,15 @@ def get_total_helper(gdp, dr):
 
     return dataGDP, dataDR
 
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    df_GDP, df_DR = scrape()
     timeSeriesDR(54)
     timeSeriesGDP(76)
     timeSeriesGDPregions()
     timeSeriesDRregions()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    total_gdp, total_dr = get_total(df_GDP, df_DR)
+
+
