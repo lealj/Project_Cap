@@ -107,10 +107,40 @@ def plot_finalize(): #finalize plot and show plot
     plt.xlabel('Time')
     plt.show()
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
+def get_total(gdp, dr):
+    # intialize arrays to store entirety of gdp & dr values
+    GDP = gdp.loc[0, ~gdp.columns.isin(['Country Name', 'Country Code', 'Indicator Code', 'Region', 'IncomeGroup', 'Indicator Name'])]
+    DR = dr.loc[0, ~dr.columns.isin(['Country Name', 'Country Code', 'Indicator Code', 'Region', 'IncomeGroup', 'Indicator Name'])]
+
+    total_gdp_vals, total_dr_vals = get_total_helper(GDP, DR)
+    # start i at 1
+    for i in range(1, len(gdp)):
+        # trim columns to only get years/values
+        GDP = gdp.loc[i, ~gdp.columns.isin(['Country Name', 'Country Code', 'Indicator Code', 'Region', 'IncomeGroup', 'Indicator Name'])]
+        DR = dr.loc[i, ~dr.columns.isin(['Country Name', 'Country Code', 'Indicator Code', 'Region', 'IncomeGroup', 'Indicator Name'])]
+        country_gdp, country_dr = get_total_helper(GDP, DR)
+
+        # add return arrays to the end of our total storage arrays
+        total_gdp_vals = np.concatenate((total_gdp_vals, country_gdp))
+        total_dr_vals = np.concatenate((total_dr_vals, country_dr))
+
+    return total_gdp_vals, total_dr_vals
+
+
+def get_total_helper(gdp, dr):
+    # merge gdp & dr about year
+    data = pd.merge(gdp, dr, right_index=True, left_index=True)
+    data.columns = ['_gdp', '_dr']
+
+    # trim rows where gdp = -1
+    data = data[data['_gdp'] != -1.0]
+    data = data.to_numpy()
+
+    # split
+    dataGDP, dataDR = np.hsplit(data, 2)
+
+    return dataGDP, dataDR
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
