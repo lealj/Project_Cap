@@ -107,42 +107,56 @@ def plot_finalize(): #finalize plot and show plot
     ax.set_xticks(['1960', '1965', '1970', '1975', '1980', '1985', '1990', '1995', '2000', '2005', '2010', '2015', '2020'])
     plt.grid()
     plt.xlabel('Time')
-    plt.show()
+    # plt.show()
 
+def get_country_dictionary(gdp):
+    countries = gdp.loc[:, 'Country Name']
+    countriesDict = countries.to_dict()
+    return countriesDict
 
 def get_total(gdp, dr):
-    # intialize arrays to store entirety of gdp & dr values
+
     GDP = gdp.loc[0, ~gdp.columns.isin(['Country Name', 'Country Code', 'Indicator Code', 'Region', 'IncomeGroup', 'Indicator Name'])]
     DR = dr.loc[0, ~dr.columns.isin(['Country Name', 'Country Code', 'Indicator Code', 'Region', 'IncomeGroup', 'Indicator Name'])]
 
-    total_gdp_vals, total_dr_vals = get_total_helper(GDP, DR)
+    total_gdp_vals, total_dr_vals, total_country_index_vals = get_total_helper(GDP, DR, 0)
     # start i at 1
     for i in range(1, len(gdp)):
+        index = i
         # trim columns to only get years/values
         GDP = gdp.loc[i, ~gdp.columns.isin(['Country Name', 'Country Code', 'Indicator Code', 'Region', 'IncomeGroup', 'Indicator Name'])]
         DR = dr.loc[i, ~dr.columns.isin(['Country Name', 'Country Code', 'Indicator Code', 'Region', 'IncomeGroup', 'Indicator Name'])]
-        country_gdp, country_dr = get_total_helper(GDP, DR)
+        country_gdp, country_dr, country_index = get_total_helper(GDP, DR, index)
 
         # add return arrays to the end of our total storage arrays
         total_gdp_vals = np.concatenate((total_gdp_vals, country_gdp))
         total_dr_vals = np.concatenate((total_dr_vals, country_dr))
+        total_country_index_vals = np.concatenate((total_country_index_vals, country_index))
 
-    return total_gdp_vals, total_dr_vals
+    return total_gdp_vals, total_dr_vals, total_country_index_vals
 
 
-def get_total_helper(gdp, dr):
+def get_total_helper(gdp, dr, index):
     # merge gdp & dr about year
     data = pd.merge(gdp, dr, right_index=True, left_index=True)
-    data.columns = ['_gdp', '_dr']
-
+    data.insert(2, 'index', index)
+    data.columns = ['_gdp', '_dr', '_index']
     # trim rows where gdp = -1
     data = data[data['_gdp'] != -1.0]
+    data = data.dropna()
     data = data.to_numpy()
-
     # split
-    dataGDP, dataDR = np.hsplit(data, 2)
+    dataGDP, dataDR, country_index = np.hsplit(data, 3)
 
-    return dataGDP, dataDR
+    return dataGDP, dataDR, country_index
+
+
+def regression(gdp, dr):
+    plt.clf()
+
+    gdp = gdp/10000000000
+    plt.scatter(dr, gdp, edgecolors='black')
+    plt.show()
 
 
 # Press the green button in the gutter to run the script.
@@ -153,6 +167,8 @@ if __name__ == '__main__':
     timeSeriesGDPregions()
     timeSeriesDRregions()
 
-    total_gdp, total_dr = get_total(df_GDP, df_DR)
+    total_gdp, total_dr, total_country_index = get_total(df_GDP, df_DR)
+
+    regression(total_gdp, total_dr)
 
 
