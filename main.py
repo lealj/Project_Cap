@@ -47,8 +47,7 @@ def getRegionGroups(region): #returns indexes of all tuples of given region - us
                     indexes.append(i)
     return indexes
 
-def timeSeriesGDP(index): #get timeSeries for specific GDP graph
-    dfGDP, dfDR = scrape()
+def timeSeriesGDP(index, dfGDP): #get timeSeries for specific GDP graph
     time = getDates(dfGDP)
     dataGDP = getData(index, dfGDP)
     name = getName(index, dfGDP)
@@ -58,8 +57,7 @@ def timeSeriesGDP(index): #get timeSeries for specific GDP graph
     plt.ylabel('GDP (current US Dollars)')
     plot_finalize()
 
-def timeSeriesGDPregions(): #get timeSeries for regions GDP graph
-    dfGDP, df = scrape()
+def timeSeriesGDPregions(dfGDP): #get timeSeries for regions GDP graph
     time = getDates(dfGDP)
     regionMap = map(getRegionGroups, regions)
     for j in range(0, 7):
@@ -73,8 +71,7 @@ def timeSeriesGDPregions(): #get timeSeries for regions GDP graph
         plot_finalize()
         
 
-def timeSeriesDR(index): #get timeSeries for specific DR graph
-    dfGDP, dfDR = scrape()
+def timeSeriesDR(index, dfDR): #get timeSeries for specific DR graph
     time = getDates(dfDR)
     dataDR = getData(index, dfDR)
     name = getName(index, dfDR)
@@ -85,8 +82,7 @@ def timeSeriesDR(index): #get timeSeries for specific DR graph
     plot_finalize()
 
 
-def timeSeriesDRregions(): #get timeSeries for regions DR graph
-    df, dfDR = scrape()
+def timeSeriesDRregions(dfDR): #get timeSeries for regions DR graph
     time = getDates(dfDR)
     regionMap = map(getRegionGroups, regions)
     for j in range(0, 7):
@@ -158,17 +154,15 @@ def regression(gdp, dr):
     plt.scatter(dr, gdp, edgecolors='black')
     plt.show()
 
-
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     df_GDP, df_DR = scrape()
-    timeSeriesDR(54)
-    timeSeriesGDP(76)
-    timeSeriesGDPregions()
-    timeSeriesDRregions()
+    timeSeriesDR(54, df_DR)
+    timeSeriesGDP(76, df_GDP)
+    timeSeriesGDPregions(df_GDP)
+    timeSeriesDRregions(df_DR)
 
     total_gdp, total_dr, total_country_index = get_total(df_GDP, df_DR)
 
     regression(total_gdp, total_dr)
-
 
