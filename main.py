@@ -6,11 +6,16 @@ from sklearn import datasets, linear_model
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.cluster import KMeans
 import seaborn as sns
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix, plot_confusion_matrix
+from sklearn.neural_network import MLPClassifier
+from sklearn import tree
+from sklearn import preprocessing
 
 regions = ['Latin America & Caribbean', 'South Asia', 'Sub-Saharan Africa', 'Europe & Central Asia', 'Middle East & North Africa', 'East Asia & Pacific', 'North America']
 filenameGDP = r'GDP_Per_Capita.xls'
 filenameDR = r'DeathRate.xls'
-
+filenameGDP1 = r'GDP.xls'
 
 def scrape(): #scrapes excel sheets and places into dataframes
     dfGDP = pd.read_excel(filenameGDP)
@@ -19,7 +24,10 @@ def scrape(): #scrapes excel sheets and places into dataframes
 
     dfDR = pd.read_excel(filenameDR)
     dfDR = dfDR.fillna(-1)
-    return dfGDP, dfDR
+    
+    dfGDP1 = pd.read_excel(filenameGDP1)# for GDP not per Capita
+    dfDR1 = pd.read_excel(filenameDR)# for DR with NaN
+    return dfGDP, dfDR, dfGDP1, dfDR1
 
 
 def getDates(dfGDP): #return list of dates for graphing purposes (1960-2020)
@@ -249,7 +257,55 @@ def kmeans_clustering(gdp, dr, index):
     x1, x2, y = np.hsplit(data, 3)
     X = np.concatenate((x1, x2), axis=1)
 
+def cleanData (dfGDP, dfDR):#get rid of the features besides IncomeGroup and GDP and Death rate 
+    GDP = dfGDP.drop(labels=['Country Code', 'Region', 'Indicator Name','Indicator Code', "Country Name"], axis=1)
+    GDP = GDP.dropna(subset = ["IncomeGroup"])
+    GDP = GDP.replace(-1, 0)
+    
+    DR = dfDR.drop(labels=['Country Code', 'Region', 'Indicator Name','Indicator Code', "Country Name"], axis=1)
+    DR = DR.dropna(subset = ["IncomeGroup"])
+    DR = DR.fillna(0)
+    
+    return GDP, DR 
 
+def getXy(GDP, DR):
+    #normalizing the data and generated the X and y
+    y = GDP.loc[:, 'IncomeGroup'].to_numpy()
+    X1 = GDP.iloc[:, 1:62]
+    X1d = preprocessing.normalize(X1, axis=0)
+    X2 = DR.iloc[:, 1:62]
+    X2d = preprocessing.normalize(X2, axis=0)
+    X = np.concatenate((X1d, X2d), axis = 1)
+    return X,y
+
+def getAvg(GDP, DR):
+    avgGDP = GDP.mean(axis=1)
+    avgDR = DR.mean(axis=1)
+    Xavg = np.vstack((avgGDP,avgDR))
+    return Xavg
+
+def MLPandcm (X_train, X_test, y_train, y_test):
+    clf = MLPClassifier(activation='tanh', hidden_layer_sizes=(200,150), max_iter=1500)
+    clf.fit(X_train, y_train)
+    test_pred = clf.predict(X_test)
+    train_pred = clf.predict(X_train)
+    print("MLP Classifier")
+    print("The testing accuracy score is: " + str(accuracy_score(y_test, test_pred)))
+    print("The testing accuracy score for X_train is: " + str(accuracy_score(y_train, train_pred)))
+    plot_confusion_matrix(clf, X_test, y_test)  
+    plt.xticks(rotation = 45)
+    plt.show()
+
+def DTandcm (X_train, X_test, y_train, y_test):
+    clf = tree.DecisionTreeClassifier().fit(X_train, y_train)
+    test_pred = clf.predict(X_test)
+    train_pred = clf.predict(X_train)
+    print("Decision Tree Classifier")
+    print("The testing accuracy score is: " + str(accuracy_score(y_test, clf.predict(X_test))))
+    print("The testing accuracy score for X_train is: " + str(accuracy_score(y_train, clf.predict(X_train))))
+    plot_confusion_matrix(clf, X_test, y_test)
+    plt.xticks(rotation = 45)
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -264,3 +320,14 @@ if __name__ == '__main__':
     regression(total_gdp, total_dr, total_country_index)
     single_year_regression(df_GDP, df_DR)
     kmeans_clustering(total_gdp, total_dr, total_country_index)
+    
+    GDP, DR = cleanData(df_GDP1, df_DR1)
+    X, y = getXy(GDP, DR)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    MLPandcm (X_train, X_test, y_train, y_test)
+    DTandcm (X_train, X_test, y_train, y_test)
+    
+    Xavg = getAvg(GDP, DR)
+    X_avg_train, X_avg_test, y_avg_train, y_avg_test = train_test_split(Xavg.transpose(), y, test_size=0.2)
+    MLPandcm (X_avg_train, X_avg_test, y_avg_train, y_avg_test)
+    DTandcm (X_avg_train, X_avg_test, y_avg_train, y_avg_test)
