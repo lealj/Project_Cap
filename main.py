@@ -10,6 +10,7 @@ from sklearn.metrics import confusion_matrix, plot_confusion_matrix
 from sklearn.neural_network import MLPClassifier
 from sklearn import tree
 from sklearn import preprocessing
+from yellowbrick.cluster import KElbowVisualizer
 import seaborn as sns
 
 regions = ['Latin America & Caribbean', 'South Asia', 'Sub-Saharan Africa', 'Europe & Central Asia', 'Middle East & North Africa', 'East Asia & Pacific', 'North America']
@@ -303,12 +304,25 @@ def single_year_regression(gdp, dr):
 
 
 def kmeans_clustering(gdp, dr, index):
+    # format data
+    plt.clf()
     data = np.concatenate((gdp, dr, index), axis=1)
     data = pd.DataFrame(data, columns=['GDP', 'DR', 'Index']).dropna().to_numpy()
     data = np.delete(data, np.where(data[:, 0] == -1.0), axis=0)
-    x1, x2, y = np.hsplit(data, 3)
-    X = np.concatenate((x1, x2), axis=1)
-    kmeans = KMeans(n_clusters=len(index))
+    data = np.delete(data, np.where(data[:, 1] == -1.0), axis=0)
+    x1, x2, y_ = np.hsplit(data, 3)
+    x1 = np.log10(x1)
+    X_ = np.concatenate((x1, x2), axis=1)
+
+    # kmeans
+    kmeans = KMeans(init='random', n_clusters=3) # n_clusters=len(y_)
+    kmeans.fit(X_)
+    # kmeans.labels_ = y_
+    y_kmeans = kmeans.predict(X_)
+
+    # plot
+    # plt.scatter(X_[:, 1], X_[:, 0], c=y_kmeans, edgecolors='black')
+    # plt.show()
 
 
 if __name__ == '__main__':
