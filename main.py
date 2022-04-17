@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn import datasets, linear_model
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.cluster import KMeans
 import seaborn as sns
 
 regions = ['Latin America & Caribbean', 'South Asia', 'Sub-Saharan Africa', 'Europe & Central Asia', 'Middle East & North Africa', 'East Asia & Pacific', 'North America']
@@ -178,13 +179,10 @@ def regression(gdp, dr, index):
     modified_data = np.delete(modified_data, np.where(modified_data[:, 1] == -1.0), axis=0)
     # removes outliers
     # modified_data = np.delete(modified_data, np.where(modified_data[:, 0] > 1775), axis=0)
-    modified_data = np.delete(modified_data, np.where(modified_data[:, 1] > 20.171), axis=0)
+    # modified_data = np.delete(modified_data, np.where(modified_data[:, 1] > 20.171), axis=0)
     mod_gdp, mod_dr, mod_ind = np.hsplit(modified_data, 3)
     # apply log scale on gdp
     mod_gdp = np.log10(mod_gdp)
-    # checks for outliers
-    # sns.boxplot(mod_gdp)
-    # plt.show()
 
     # regression on all data points
     x_train, x_test, y_train, y_test = train_test_split(mod_dr, mod_gdp, test_size=0.2)
@@ -198,15 +196,15 @@ def regression(gdp, dr, index):
     # 1 is perfect fit
     # print(r2_score(y_test, y_pred))
 
-    plot_regression(x_test, y_test, y_pred, 'Regression: All Countries')
+    # plot_regression(x_test, y_test, y_pred, 'Regression: All Countries')
 
     # REGRESSION ON UNITED STATES ##########################################
     modified_data = np.concatenate((gdp, dr, index), axis=1)
-    # excel ind - 2 = country u want (remove -1 from both sets if other country)
-    modified_data = np.delete(modified_data, np.where(modified_data[:, 2] != 253-2), axis=0)
+    # excel ind - 2 = country u want (remove -1/NaN from both sets if other country)
+    modified_data = np.delete(modified_data, np.where(modified_data[:, 2] != 209), axis=0)
     mod_gdp, mod_dr, mod_ind = np.hsplit(modified_data, 3)
     # decide whether to keep or discard log scale for single country
-    mod_gdp = np.log10(mod_gdp)
+    # mod_gdp = np.log10(mod_gdp)
 
     x_train, x_test, y_train, y_test = train_test_split(mod_dr, mod_gdp, test_size=0.50)
     regr = linear_model.LinearRegression()
@@ -243,6 +241,17 @@ def single_year_regression(gdp, dr):
     # plot_regression(x_test, y_test, y_pred, 'Regression: All Countries Year 2020')
 
 
+def kmeans_clustering(gdp, dr, index):
+
+    data = np.concatenate((gdp, dr, index), axis=1)
+    data = pd.DataFrame(data, columns=['GDP', 'DR', 'Index']).dropna().to_numpy()
+    data = np.delete(data, np.where(data[:, 0] == -1.0), axis=0)
+    x1, x2, y = np.hsplit(data, 3)
+    X = np.concatenate((x1, x2), axis=1)
+
+
+
+
 if __name__ == '__main__':
     df_GDP, df_DR = scrape()
     timeSeriesDR(54, df_DR)
@@ -254,3 +263,4 @@ if __name__ == '__main__':
 
     regression(total_gdp, total_dr, total_country_index)
     single_year_regression(df_GDP, df_DR)
+    kmeans_clustering(total_gdp, total_dr, total_country_index)
