@@ -12,6 +12,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn import tree
 from sklearn import preprocessing
 from matplotlib.colors import ListedColormap
+import statsmodels.api as sma
+
 
 import seaborn as sns
 
@@ -247,11 +249,18 @@ def regression(gdp, dr, index):
     regr.fit(x_train, y_Train)
     y_pred = regr.predict(x_test)
 
+    # compute the p-values
+    import statsmodels.api as sm
+    mod = sm.OLS(y_pred, x_test)
+    fii = mod.fit()
+    p_values = fii.summary2().tables[1]['P>|t|']
+    print(p_values)
+
     # Evalute fit
     # 1 is perfect fit
     # print(r2_score(y_Test, y_pred))
-    print(regr.coef_)
-    print(mean_squared_error(y_Test, y_pred))
+    # print(regr.coef_)
+   #  print(mean_squared_error(y_Test, y_pred))
 
     plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries')
 
@@ -260,8 +269,6 @@ def regression(gdp, dr, index):
     # excel ind - 2 = country u want (remove -1/NaN from both sets if other country)
     modified_data = np.delete(modified_data, np.where(modified_data[:, 2] != 253-2), axis=0)
     mod_gdp, mod_dr, mod_ind = np.hsplit(modified_data, 3)
-    for i in range(0, len(mod_gdp)):
-        print(mod_gdp[i])
     # decide whether to keep or discard log scale for single country
     mod_gdp = np.log10(mod_gdp)
 
@@ -269,6 +276,13 @@ def regression(gdp, dr, index):
     regr = linear_model.LinearRegression()
     regr.fit(x_train_, y_Train_)
     y_pred_ = regr.predict(x_test_)
+
+    # compute the p-values
+    import statsmodels.api as sm
+    mod = sm.OLS(y_pred_, x_test_)
+    fii = mod.fit()
+    p_values = fii.summary2().tables[1]['P>|t|']
+    print(p_values)
 
     # Evalute fit
     # 1 is perfect fit
@@ -299,11 +313,21 @@ def single_year_regression(gdp, dr):
     regr.fit(x_train, y_Train)
     y_pred = regr.predict(x_test)
 
+    beta_hat = [regr.intercept_] + regr.coef_.tolist()
+
+    # compute the p-values
+    import statsmodels.api as sm
+    mod = sm.OLS(y_pred, x_test)
+    fii = mod.fit()
+    p_values = fii.summary2().tables[1]['P>|t|']
+    print(p_values)
+
+
     # Evalute fit
     # 1 is perfect fit
     # print(r2_score(y_Test, y_pred))
-    print(regr.coef_)
-    print(mean_squared_error(y_Test, y_pred))
+    # print(regr.coef_)
+    # print(mean_squared_error(y_Test, y_pred))
 
     plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries Year 2020')
 
@@ -341,7 +365,7 @@ def kmeans_clustering(gdp, dr, index, diction):
             d[y_kmeans[i]].append(diction[i])
 
     del d[0][0]
-    print(d)
+    # print(d)
     colors = np.array(['blue', 'orange', 'purple', 'brown', 'red', 'yellow', 'blueviolet', 'black', 'green', 'grey'])
 
     # plot
