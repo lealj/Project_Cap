@@ -268,7 +268,7 @@ def regression(gdp, dr, index):
     modified_data = np.delete(modified_data, np.where(modified_data[:, 2] != 209), axis=0)
     mod_gdp, mod_dr, mod_ind = np.hsplit(modified_data, 3)
     # decide whether to keep or discard log scale for single country
-    # mod_gdp = np.log10(mod_gdp)
+    mod_gdp = np.log10(mod_gdp)
 
     x_train, x_test, y_Train, y_Test = train_test_split(mod_dr, mod_gdp, test_size=0.50)
     regr = linear_model.LinearRegression()
