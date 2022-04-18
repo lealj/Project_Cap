@@ -322,27 +322,8 @@ def kmeans_clustering(gdp, dr, index, diction):
 
     kmeans.labels_ = y_
     y_kmeans = kmeans.predict(X_)
-
-    # create dictionary for new y_kmeans to track country's new index
-    length = len(diction)
-    ldfds = list(['null'])
-    d = dict()
-    d[0] = ldfds
-
-    # print(diction[1])
-    for i in range(0, length):
-        list_entry = list([diction[i]])
-        if y_kmeans[i] not in d:
-            d[y_kmeans[i]] = list_entry
-        else:
-            d[y_kmeans[i]].append(diction[i])
-
-    del d[0][0]
-    print(d)
-    colors = np.array(['blue', 'orange', 'purple', 'brown', 'red', 'yellow', 'blueviolet', 'black', 'green', 'grey'])
-
     # plot
-    scatter = plt.scatter(X_[:, 1], X_[:, 0], c=colors[y_kmeans])
+    scatter = plt.scatter(X_[:, 1], X_[:, 0], c=y_kmeans)
 
     plt.xlabel('Death Rate crude per 1000 people')
     plt.ylabel('GDP (log)')
