@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.colors as mpl_color
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn import datasets, linear_model
@@ -10,7 +11,8 @@ from sklearn.metrics import confusion_matrix, plot_confusion_matrix
 from sklearn.neural_network import MLPClassifier
 from sklearn import tree
 from sklearn import preprocessing
-from yellowbrick.cluster import KElbowVisualizer
+from matplotlib.colors import ListedColormap
+
 import seaborn as sns
 
 regions = ['Latin America & Caribbean', 'South Asia', 'Sub-Saharan Africa', 'Europe & Central Asia', 'Middle East & North Africa', 'East Asia & Pacific', 'North America']
@@ -226,7 +228,7 @@ def plot_regression(x_test, y_test_, y_pred, title):
     plt.plot(x_test, y_pred, color="black", linewidth=3)
     # add amount to y label(mil, bil, tril)
     plt.xlabel('Death Rate crude per 1000 people')
-    plt.ylabel('GDP')
+    plt.ylabel('GDP (log)')
     plt.title(title)
     plt.show()
     plt.clf()
@@ -303,8 +305,8 @@ def single_year_regression(gdp, dr):
     # plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries Year 2020')
 
 
-def kmeans_clustering(gdp, dr, index):
-    # format data
+def kmeans_clustering(gdp, dr, index, diction):
+    # format data into X[:,:] and y[:]
     plt.clf()
     data = np.concatenate((gdp, dr, index), axis=1)
     data = pd.DataFrame(data, columns=['GDP', 'DR', 'Index']).dropna().to_numpy()
@@ -315,14 +317,37 @@ def kmeans_clustering(gdp, dr, index):
     X_ = np.concatenate((x1, x2), axis=1)
 
     # kmeans
-    kmeans = KMeans(init='random', n_clusters=3) # n_clusters=len(y_)
+    kmeans = KMeans(init='random', n_clusters=10)
     kmeans.fit(X_)
-    # kmeans.labels_ = y_
+
+    kmeans.labels_ = y_
     y_kmeans = kmeans.predict(X_)
 
+    # create dictionary for new y_kmeans to track country's new index
+    length = len(diction)
+    ldfds = list(['null'])
+    d = dict()
+    d[0] = ldfds
+
+    # print(diction[1])
+    for i in range(0, length):
+        list_entry = list([diction[i]])
+        if y_kmeans[i] not in d:
+            d[y_kmeans[i]] = list_entry
+        else:
+            d[y_kmeans[i]].append(diction[i])
+
+    del d[0][0]
+    print(d)
+    colors = np.array(['blue', 'orange', 'purple', 'brown', 'red', 'yellow', 'blueviolet', 'black', 'green', 'grey'])
+
     # plot
-    # plt.scatter(X_[:, 1], X_[:, 0], c=y_kmeans, edgecolors='black')
-    # plt.show()
+    scatter = plt.scatter(X_[:, 1], X_[:, 0], c=colors[y_kmeans])
+
+    plt.xlabel('Death Rate crude per 1000 people')
+    plt.ylabel('GDP (log)')
+    plt.title('K-means Clustering')
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -337,7 +362,8 @@ if __name__ == '__main__':
 
     regression(total_gdp, total_dr, total_country_index)
     single_year_regression(df_GDP, df_DR)
-    kmeans_clustering(total_gdp, total_dr, total_country_index)
+    dictionary = get_country_dictionary(df_GDP)
+    kmeans_clustering(total_gdp, total_dr, total_country_index, dictionary)
 
     # #############################################################
     GDP, DR = cleanData(df_GDP1, df_DR1)
