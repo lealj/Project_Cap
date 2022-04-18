@@ -228,7 +228,7 @@ def plot_regression(x_test, y_test_, y_pred, title):
     plt.plot(x_test, y_pred, color="black", linewidth=3)
     # add amount to y label(mil, bil, tril)
     plt.xlabel('Death Rate crude per 1000 people')
-    plt.ylabel('GDP (log)')
+    plt.ylabel('GDP per capita (log)')
     plt.title(title)
     plt.show()
     plt.clf()
@@ -243,8 +243,9 @@ def regression(gdp, dr, index):
     modified_data = np.delete(modified_data, np.where(modified_data[:, 1] == -1.0), axis=0)
     # removes outliers
     # modified_data = np.delete(modified_data, np.where(modified_data[:, 0] > 1775), axis=0)
-    # modified_data = np.delete(modified_data, np.where(modified_data[:, 1] > 20.171), axis=0)
+    modified_data = np.delete(modified_data, np.where(modified_data[:, 1] > 20), axis=0)
     mod_gdp, mod_dr, mod_ind = np.hsplit(modified_data, 3)
+
     # apply log scale on gdp
     mod_gdp = np.log10(mod_gdp)
 
@@ -254,13 +255,13 @@ def regression(gdp, dr, index):
     regr.fit(x_train, y_Train)
     y_pred = regr.predict(x_test)
 
-    # print(regr.coef_)
-    # print(mean_squared_error(y_Test, y_pred))
-
+    # Evalute fit
     # 1 is perfect fit
-    # print(r2_score(y_Test, y_pred))
+    print(r2_score(y_Test, y_pred))
+    print(regr.coef_)
+    print(mean_squared_error(y_test, y_pred))
 
-    # plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries')
+    plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries')
 
     # REGRESSION ON UNITED STATES ##########################################
     modified_data = np.concatenate((gdp, dr, index), axis=1)
@@ -275,10 +276,13 @@ def regression(gdp, dr, index):
     regr.fit(x_train, y_Train)
     y_pred = regr.predict(x_test)
 
+    # Evalute fit
     # 1 is perfect fit
-    # print(r2_score(y_Test, y_pred))
+    print(r2_score(y_Test, y_pred))
+    print(regr.coef_)
+    print(mean_squared_error(y_test, y_pred))
 
-    # plot_regression(x_test, y_Test, y_pred, 'Regression: U.S.')
+    plot_regression(x_test, y_Test, y_pred, 'Regression: U.S.')
 
 
 def single_year_regression(gdp, dr):
@@ -288,9 +292,11 @@ def single_year_regression(gdp, dr):
 
     data = pd.merge(GDP_, DR_, right_index=True, left_index=True).dropna().to_numpy()
     data = np.delete(data, np.where(data[:, 0] == -1.0), axis=0)
+    data = np.delete(data, np.where(data[:, 1] == -1.0), axis=0)
     data = np.delete(data, np.where(data[:, 0] > 2E10), axis=0)
 
     GDP_, DR_ = np.hsplit(data, 2)
+
     GDP_ = np.log10(GDP_)
 
     # regression
@@ -299,10 +305,13 @@ def single_year_regression(gdp, dr):
     regr.fit(x_train, y_Train)
     y_pred = regr.predict(x_test)
 
+    # Evalute fit
     # 1 is perfect fit
-    # print(r2_score(y_Test, y_pred))
+    print(r2_score(y_Test, y_pred))
+    print(regr.coef_)
+    print(mean_squared_error(y_test, y_pred))
 
-    # plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries Year 2020')
+    plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries Year 2020')
 
 
 def kmeans_clustering(gdp, dr, index, diction):
@@ -326,7 +335,7 @@ def kmeans_clustering(gdp, dr, index, diction):
     scatter = plt.scatter(X_[:, 1], X_[:, 0], c=y_kmeans)
 
     plt.xlabel('Death Rate crude per 1000 people')
-    plt.ylabel('GDP (log)')
+    plt.ylabel('GDP per capita (log)')
     plt.title('K-means Clustering')
     plt.show()
 
