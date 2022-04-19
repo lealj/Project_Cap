@@ -131,16 +131,16 @@ def plot_finalize(): #finalize plot and show plot
 
 # ####################################
 def cleanData(dfGDP, dfDR):#get rid of the features besides IncomeGroup and GDP and Death rate
-    GDP_ = dfGDP.drop(labels=['Country Code', 'Region', 'Indicator Name','Indicator Code', "Country Name"], axis=1)
-    GDP_ = GDP_.dropna(subset=["IncomeGroup"])
+    GDP_ = dfGDP.drop(labels=['Country Code', 'IncomeGroup', 'Indicator Name','Indicator Code', "Country Name"], axis=1)
+    GDP_ = GDP_.dropna(subset=["Region"])
     GDP_ = GDP_.replace(-1, 0)
-    DR_ = dfDR.drop(labels=['Country Code', 'Region', 'Indicator Name','Indicator Code', "Country Name"], axis=1)
-    DR_ = DR_.dropna(subset=["IncomeGroup"])
+    DR_ = dfDR.drop(labels=['Country Code', 'IncomeGroup', 'Indicator Name','Indicator Code', "Country Name"], axis=1)
+    DR_ = DR_.dropna(subset=["Region"])
     DR_ = DR_.fillna(0)
     return GDP_, DR_
 def getXy(GDP_, DR_):
     #normalizing the data and generated the X and y
-    y_ = GDP_.loc[:, 'IncomeGroup'].to_numpy()
+    y_ = GDP_.loc[:, 'Region'].to_numpy()
     X1 = GDP_.iloc[:, 1:62]
     X1d = preprocessing.normalize(X1, axis=0)
     X2 = DR_.iloc[:, 1:62]
