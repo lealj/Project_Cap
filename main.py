@@ -405,7 +405,7 @@ if __name__ == '__main__':
     kmeans_clustering(total_gdp, total_dr, total_country_index, dictionary)
 
     # #############################################################
-    GDP, DR = cleanData(df_GDP1, df_DR1)
+    GDP, DR = cleanData(df_GDP, df_DR1)
     X, y = getXy(GDP, DR)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     MLPandcm(X_train, X_test, y_train, y_test)
