@@ -152,7 +152,7 @@ def cleanData(dfGDP, dfDR):#get rid of the features besides IncomeGroup and GDP 
 def getXy(GDP_, DR_):
     #normalizing the data and generated the X and y
     y_ = GDP_.loc[:, 'Region'].to_numpy()
-    X1 = GDP_.iloc[:, 1:62]
+    X1 = GDP_.iloc[:, 0:62]
     #X1d = preprocessing.normalize(X1, axis=0)
     X2 = DR_.iloc[:, 1:62]
     #X2d = preprocessing.normalize(X2, axis=0)
