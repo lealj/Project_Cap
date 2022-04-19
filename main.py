@@ -153,10 +153,10 @@ def getXy(GDP_, DR_):
     #normalizing the data and generated the X and y
     y_ = GDP_.loc[:, 'Region'].to_numpy()
     X1 = GDP_.iloc[:, 1:62]
-    X1d = preprocessing.normalize(X1, axis=0)
+    #X1d = preprocessing.normalize(X1, axis=0)
     X2 = DR_.iloc[:, 1:62]
-    X2d = preprocessing.normalize(X2, axis=0)
-    X_ = np.concatenate((X1d, X2d), axis=1)
+    #X2d = preprocessing.normalize(X2, axis=0)
+    X_ = np.concatenate((X1, X2), axis=1)
     return X_, y_
 def getAvg(GDP_, DR_):
     avgGDP = GDP_.mean(axis=1)
@@ -164,7 +164,7 @@ def getAvg(GDP_, DR_):
     Xavg_ = np.vstack((avgGDP, avgDR))
     return Xavg_
 def MLPandcm(X_train_, X_test_, y_train_, y_test_):
-    clf = MLPClassifier(activation='tanh', hidden_layer_sizes=(200,150), max_iter=1500)
+    clf = MLPClassifier(activation='tanh', hidden_layer_sizes=(150,100,50), max_iter=2000)
     clf.fit(X_train_, y_train_)
     test_pred = clf.predict(X_test_)
     train_pred = clf.predict(X_train_)
@@ -172,7 +172,7 @@ def MLPandcm(X_train_, X_test_, y_train_, y_test_):
     # print("The testing accuracy score is: " + str(accuracy_score(y_test_, test_pred)))
     # print("The testing accuracy score for X_train is: " + str(accuracy_score(y_train_, train_pred_)))
     plot_confusion_matrix(clf, X_test_, y_test_)
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=90)
     # plt.show()
 def DTandcm(X_train_, X_test_, y_train_, y_test_):
     clf = tree.DecisionTreeClassifier().fit(X_train_, y_train_)
@@ -182,7 +182,7 @@ def DTandcm(X_train_, X_test_, y_train_, y_test_):
     # print("The testing accuracy score is: " + str(accuracy_score(y_test_, clf.predict(X_test_))))
     # print("The testing accuracy score for X_train is: " + str(accuracy_score(y_train_, clf.predict(X_train_))))
     plot_confusion_matrix(clf, X_test_, y_test_)
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=90)
     # plt.show()
 # ###########################################
 def get_country_dictionary(gdp):
