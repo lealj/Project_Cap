@@ -389,6 +389,44 @@ def kmeans_clustering(gdp, dr, index, diction):
     plt.ylabel('GDP per capita USD (log)')
     plt.title('K-means Clustering')
     plt.show()
+    
+# ###########################################
+
+import math
+from scipy import stats
+
+def regslope_MLP(GDP, DR):  
+    
+    slopes = []
+    reg = []
+   
+    for i in range(0, len(GDP)):
+        temp = [[],[]]
+        for j in range(1960, 2020):
+            if (GDP.iloc[i])[str(j)] != 0 and (DR.iloc[i])[str(j)] != 0:
+                temp[0].append(math.log10((GDP.iloc[i])[str(j)]))
+                temp[1].append((DR.iloc[i])[str(j)])
+        if len(temp[0]) != 0:
+            
+            slope, intercept, r_value, p_value, std_err = stats.linregress(temp[0],temp[1])
+            
+            if not math.isnan(slope):
+                slopes.append(slope)
+                reg.append(DR.iloc[i][0])
+    
+    
+    slopes = np.transpose([slopes])
+    
+    X_train, X_test, y_train, y_test = train_test_split(slopes, reg, test_size=0.2)
+    
+    
+    clf = MLPClassifier(activation='identity', learning_rate_init = .005, hidden_layer_sizes=(200, 125), max_iter=1500)
+    clf.fit(X_train, y_train)
+    test_pred = clf.predict(X_test)
+    train_pred = clf.predict(X_train)
+    print("MLP Classifier")
+    print("The testing accuracy score is: " + str(accuracy_score(y_test, test_pred)))
+    print("The training accuracy score is: " + str(accuracy_score(y_train, train_pred)))
 
 
 if __name__ == '__main__':
@@ -413,6 +451,7 @@ if __name__ == '__main__':
     MLPandcm(X_train, X_test, y_train, y_test)
     DTandcm(X_train, X_test, y_train, y_test)
 
+    regslope_MLP(GDP, DR)
     #Xavg = getAvg(GDP, DR)
     #X_avg_train, X_avg_test, y_avg_train, y_avg_test = train_test_split(Xavg.transpose(), y, test_size=0.2)
     #MLPandcm(X_avg_train, X_avg_test, y_avg_train, y_avg_test)
