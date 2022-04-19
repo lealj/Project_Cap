@@ -63,6 +63,7 @@ def getRegionGroups(region): #returns indexes of all tuples of given region - us
     df, dfDR, g, d = scrape()
     indexes = []
     for (columnName, columnData) in df.iteritems():
+        print(columnName)
         if columnName == 'Region':
             for i in range(0, len(columnData)):
                 if region == columnData[i]:
@@ -251,6 +252,13 @@ def regression(gdp, dr, index):
     modified_data = np.delete(modified_data, np.where(modified_data[:, 1] > 20), axis=0)
     mod_gdp, mod_dr, mod_ind = np.hsplit(modified_data, 3)
 
+    # compute the p-values
+    import statsmodels.api as sm
+    mod = sm.OLS(mod_gdp, mod_dr)
+    fii = mod.fit()
+    p_values = fii.summary2()
+    print(p_values)
+
     # apply log scale on gdp
     mod_gdp = np.log10(mod_gdp)
 
@@ -260,18 +268,11 @@ def regression(gdp, dr, index):
     regr.fit(x_train, y_Train)
     y_pred = regr.predict(x_test)
 
-    # compute the p-values
-    import statsmodels.api as sm
-    mod = sm.OLS(mod_dr, mod_gdp)
-    fii = mod.fit()
-    p_values = fii.summary2().tables[1]['P>|t|']
-    # print(p_values)
-
     # Evalute fit
     # 1 is perfect fit
     # print(r2_score(y_Test, y_pred))
-    print(regr.coef_)
-    print(mean_squared_error(y_Test, y_pred))
+    # print(regr.coef_)
+    # print(mean_squared_error(y_Test, y_pred))
 
     plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries')
 
@@ -283,6 +284,13 @@ def regression(gdp, dr, index):
     modified_data = np.delete(modified_data, np.where(modified_data[:, 2] != 253-2), axis=0)
     mod_gdp, mod_dr, mod_ind = np.hsplit(modified_data, 3)
     # decide whether to keep or discard log scale for single country
+    # compute the p-values
+    import statsmodels.api as sm
+    mod = sm.OLS(mod_gdp, mod_dr)
+    fii = mod.fit()
+    p_values = fii.summary2().tables[1]['P>|t|']
+    print(p_values)
+
     mod_gdp = np.log10(mod_gdp)
 
     x_train_, x_test_, y_Train_, y_Test_ = train_test_split(mod_dr, mod_gdp, test_size=0.50)
@@ -290,18 +298,11 @@ def regression(gdp, dr, index):
     regr.fit(x_train_, y_Train_)
     y_pred_ = regr.predict(x_test_)
 
-    # compute the p-values
-    import statsmodels.api as sm
-    mod = sm.OLS(y_pred_, x_test_)
-    fii = mod.fit()
-    p_values = fii.summary2().tables[1]['P>|t|']
-   #  print(p_values)
-
     # Evalute fit
     # 1 is perfect fit
     # print(r2_score(y_Test, y_pred))
-    print(regr.coef_)
-    print(mean_squared_error(y_Test_, y_pred_))
+    # print(regr.coef_)
+    # print(mean_squared_error(y_Test_, y_pred_))
 
     plot_regression(x_test_, y_Test_, y_pred_, 'Regression: U.S.')
 
@@ -318,6 +319,13 @@ def single_year_regression(gdp, dr):
 
     GDP_, DR_ = np.hsplit(data, 2)
 
+    # compute the p-values
+    import statsmodels.api as sm
+    mod = sm.OLS(GDP_, DR_)
+    fii = mod.fit()
+    p_values = fii.summary2().tables[1]['P>|t|']
+    print(p_values)
+
     GDP_ = np.log10(GDP_)
 
     # regression
@@ -328,20 +336,12 @@ def single_year_regression(gdp, dr):
 
     beta_hat = [regr.intercept_] + regr.coef_.tolist()
 
-    # compute the p-values
-    import statsmodels.api as sm
-    mod = sm.OLS(y_pred, x_test)
-    ft = mod.fit()
-    p = ft.params
-    p_values = ft.summary2().tables[1]['P>|t|']
-    # print(p_values)
-
 
     # Evalute fit
     # 1 is perfect fit
     # print(r2_score(y_Test, y_pred))
-    print(regr.coef_)
-    print(mean_squared_error(y_Test, y_pred))
+    # print(regr.coef_)
+    # print(mean_squared_error(y_Test, y_pred))
 
     plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries Year 2008')
 
