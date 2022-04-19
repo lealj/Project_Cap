@@ -221,7 +221,7 @@ def plot_regression(x_test, y_test_, y_pred, title):
     plt.plot(x_test, y_pred, color="black", linewidth=3)
     # add amount to y label(mil, bil, tril)
     plt.xlabel('Death Rate crude per 1000 people')
-    plt.ylabel('GDP per capita (log)')
+    plt.ylabel('GDP per capita USD (log)')
     plt.title(title)
     plt.show()
     plt.clf()
@@ -254,19 +254,21 @@ def regression(gdp, dr, index):
     mod = sm.OLS(mod_dr, mod_gdp)
     fii = mod.fit()
     p_values = fii.summary2().tables[1]['P>|t|']
-    print(p_values)
+    # print(p_values)
 
     # Evalute fit
     # 1 is perfect fit
     # print(r2_score(y_Test, y_pred))
-    # print(regr.coef_)
-    # print(mean_squared_error(y_Test, y_pred))
+    print(regr.coef_)
+    print(mean_squared_error(y_Test, y_pred))
 
     plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries')
 
     # REGRESSION ON UNITED STATES ##########################################
     modified_data = np.concatenate((gdp, dr, index), axis=1)
     # excel ind - 2 = country u want (remove -1/NaN from both sets if other country)
+    modified_data = np.delete(modified_data, np.where(modified_data[:, 0] == -1.0), axis=0)
+    modified_data = np.delete(modified_data, np.where(modified_data[:, 1] == -1.0), axis=0)
     modified_data = np.delete(modified_data, np.where(modified_data[:, 2] != 253-2), axis=0)
     mod_gdp, mod_dr, mod_ind = np.hsplit(modified_data, 3)
     # decide whether to keep or discard log scale for single country
@@ -282,21 +284,21 @@ def regression(gdp, dr, index):
     mod = sm.OLS(y_pred_, x_test_)
     fii = mod.fit()
     p_values = fii.summary2().tables[1]['P>|t|']
-    print(p_values)
+   #  print(p_values)
 
     # Evalute fit
     # 1 is perfect fit
     # print(r2_score(y_Test, y_pred))
-    # print(regr.coef_)
-    # print(mean_squared_error(y_Test_, y_pred_))
+    print(regr.coef_)
+    print(mean_squared_error(y_Test_, y_pred_))
 
-    # plot_regression(x_test_, y_Test_, y_pred_, 'Regression: U.S.')
+    plot_regression(x_test_, y_Test_, y_pred_, 'Regression: U.S.')
 
 
 def single_year_regression(gdp, dr):
     # get 2020 data
-    GDP_ = gdp.loc[:, gdp.columns.isin(['2015'])]
-    DR_ = dr.loc[:, dr.columns.isin(['2015'])]
+    GDP_ = gdp.loc[:, gdp.columns.isin(['2008'])]
+    DR_ = dr.loc[:, dr.columns.isin(['2008'])]
 
     data = pd.merge(GDP_, DR_, right_index=True, left_index=True).dropna().to_numpy()
     data = np.delete(data, np.where(data[:, 0] == -1.0), axis=0)
@@ -308,7 +310,7 @@ def single_year_regression(gdp, dr):
     GDP_ = np.log10(GDP_)
 
     # regression
-    x_train, x_test, y_Train, y_Test = train_test_split(DR_, GDP_, test_size=0.2)
+    x_train, x_test, y_Train, y_Test = train_test_split(DR_, GDP_, test_size=0.5)
     regr = linear_model.LinearRegression()
     regr.fit(x_train, y_Train)
     y_pred = regr.predict(x_test)
@@ -330,7 +332,7 @@ def single_year_regression(gdp, dr):
     print(regr.coef_)
     print(mean_squared_error(y_Test, y_pred))
 
-    plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries Year 2015')
+    plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries Year 2008')
 
 
 def kmeans_clustering(gdp, dr, index, diction):
@@ -352,20 +354,20 @@ def kmeans_clustering(gdp, dr, index, diction):
     y_kmeans = kmeans.predict(X_)
 
     # create dictionary for new y_kmeans to track country's new index
-    length = len(diction)
-    ldfds = list(['null'])
-    d = dict()
-    d[0] = ldfds
+    # length = len(diction)
+    # ldfds = list(['null'])
+    # d = dict()
+    # d[0] = ldfds
 
     # print(diction[1])
-    for i in range(0, length):
-        list_entry = list([diction[i]])
-        if y_kmeans[i] not in d:
-            d[y_kmeans[i]] = list_entry
-        else:
-            d[y_kmeans[i]].append(diction[i])
+    # for i in range(0, length):
+    #     list_entry = list([diction[i]])
+    #     if y_kmeans[i] not in d:
+    #         d[y_kmeans[i]] = list_entry
+    #     else:
+    #        d[y_kmeans[i]].append(diction[i])
 
-    del d[0][0]
+    # del d[0][0]
     # print(d)
     colors = np.array(['blue', 'orange', 'purple', 'brown', 'red', 'yellow', 'blueviolet', 'black', 'green', 'grey'])
 
@@ -373,7 +375,7 @@ def kmeans_clustering(gdp, dr, index, diction):
     scatter = plt.scatter(X_[:, 1], X_[:, 0], c=colors[y_kmeans])
 
     plt.xlabel('Death Rate crude per 1000 people')
-    plt.ylabel('GDP per capita (log)')
+    plt.ylabel('GDP per capita USD (log)')
     plt.title('K-means Clustering')
     plt.show()
 
