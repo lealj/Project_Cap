@@ -151,7 +151,7 @@ def cleanData(dfGDP, dfDR):#get rid of the features besides IncomeGroup and GDP 
     return GDP_, DR_
 def getXy(GDP_, DR_):
     #normalizing the data and generated the X and y
-    y_ = GDP_.loc[:, 'Region'].to_numpy()
+    y_ = DR_.loc[:, 'Region'].to_numpy()
     X1 = GDP_.iloc[:, 0:62]
     #X1d = preprocessing.normalize(X1, axis=0)
     X2 = DR_.iloc[:, 1:62]
@@ -413,7 +413,7 @@ if __name__ == '__main__':
     MLPandcm(X_train, X_test, y_train, y_test)
     DTandcm(X_train, X_test, y_train, y_test)
 
-    Xavg = getAvg(GDP, DR)
-    X_avg_train, X_avg_test, y_avg_train, y_avg_test = train_test_split(Xavg.transpose(), y, test_size=0.2)
-    MLPandcm(X_avg_train, X_avg_test, y_avg_train, y_avg_test)
-    DTandcm(X_avg_train, X_avg_test, y_avg_train, y_avg_test)
+    #Xavg = getAvg(GDP, DR)
+    #X_avg_train, X_avg_test, y_avg_train, y_avg_test = train_test_split(Xavg.transpose(), y, test_size=0.2)
+    #MLPandcm(X_avg_train, X_avg_test, y_avg_train, y_avg_test)
+    #DTandcm(X_avg_train, X_avg_test, y_avg_train, y_avg_test)
