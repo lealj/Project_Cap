@@ -251,7 +251,7 @@ def regression(gdp, dr, index):
 
     # compute the p-values
     import statsmodels.api as sm
-    mod = sm.OLS(y_pred, x_test)
+    mod = sm.OLS(mod_dr, mod_gdp)
     fii = mod.fit()
     p_values = fii.summary2().tables[1]['P>|t|']
     print(p_values)
@@ -260,7 +260,7 @@ def regression(gdp, dr, index):
     # 1 is perfect fit
     # print(r2_score(y_Test, y_pred))
     # print(regr.coef_)
-   #  print(mean_squared_error(y_Test, y_pred))
+    # print(mean_squared_error(y_Test, y_pred))
 
     plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries')
 
@@ -287,16 +287,16 @@ def regression(gdp, dr, index):
     # Evalute fit
     # 1 is perfect fit
     # print(r2_score(y_Test, y_pred))
-    #  print(regr.coef_)
-    #  print(mean_squared_error(y_Test_, y_pred_))
+    # print(regr.coef_)
+    # print(mean_squared_error(y_Test_, y_pred_))
 
-    plot_regression(x_test_, y_Test_, y_pred_, 'Regression: U.S.')
+    # plot_regression(x_test_, y_Test_, y_pred_, 'Regression: U.S.')
 
 
 def single_year_regression(gdp, dr):
     # get 2020 data
-    GDP_ = gdp.loc[:, gdp.columns.isin(['2020'])]
-    DR_ = dr.loc[:, dr.columns.isin(['2020'])]
+    GDP_ = gdp.loc[:, gdp.columns.isin(['2015'])]
+    DR_ = dr.loc[:, dr.columns.isin(['2015'])]
 
     data = pd.merge(GDP_, DR_, right_index=True, left_index=True).dropna().to_numpy()
     data = np.delete(data, np.where(data[:, 0] == -1.0), axis=0)
@@ -318,18 +318,19 @@ def single_year_regression(gdp, dr):
     # compute the p-values
     import statsmodels.api as sm
     mod = sm.OLS(y_pred, x_test)
-    fii = mod.fit()
-    p_values = fii.summary2().tables[1]['P>|t|']
-    print(p_values)
+    ft = mod.fit()
+    p = ft.params
+    p_values = ft.summary2().tables[1]['P>|t|']
+    # print(p_values)
 
 
     # Evalute fit
     # 1 is perfect fit
     # print(r2_score(y_Test, y_pred))
-    # print(regr.coef_)
-    # print(mean_squared_error(y_Test, y_pred))
+    print(regr.coef_)
+    print(mean_squared_error(y_Test, y_pred))
 
-    plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries Year 2020')
+    plot_regression(x_test, y_Test, y_pred, 'Regression: All Countries Year 2015')
 
 
 def kmeans_clustering(gdp, dr, index, diction):
@@ -344,7 +345,7 @@ def kmeans_clustering(gdp, dr, index, diction):
     X_ = np.concatenate((x1, x2), axis=1)
 
     # kmeans
-    kmeans = KMeans(init='k-means++', n_clusters=10)
+    kmeans = KMeans(init='random', n_clusters=10)
     kmeans.fit(X_)
 
     kmeans.labels_ = y_
