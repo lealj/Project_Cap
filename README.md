@@ -1,4 +1,4 @@
-# Project_Cap
+# 2342432434
 
 Data Science project testing hypotheses: 
 "There is no association between a country's GDP per capita and its mortality rate. 
