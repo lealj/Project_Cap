@@ -1,4 +1,4 @@
-# 2342432434
+# Investigation into GDP per Capita and Mortality Rate of Countries Over Time. 
 
 Data Science project testing hypotheses: 
 "There is no association between a country's GDP per capita and its mortality rate. 
